@@ -10,5 +10,6 @@ return [
         'search' => 'app\command\Search',
         'article' => 'app\command\Article',
         'seo' => 'app\command\seo',
+        'link_submit' => 'app\command\link_submit',
     ],
 ];

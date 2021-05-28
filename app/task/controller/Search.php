@@ -34,7 +34,7 @@ class Search{
             // ->where('keys_length>0 and keys_length>=6')
             ->order("site_task_search_times,keys_search_times asc")
             // ->orderRaw('rand()')
-            ->limit(1)->select()->toArray();
+            ->limit(1,rand(1,100))->select()->toArray();
 
         $cKeys=new cKeys();
 
@@ -68,12 +68,16 @@ class Search{
     
             foreach ($list['link'] as $key => $value) {
                 if(strlen($value)<500){
-                    $data=[];
-                    $data['surl_site_id']=$keys_list['site_id'];
-                    $data['surl_keys_id']=$keys_list['keys_id'];
-                    $data['surl_url']=$value;
-                    $data['surl_create_times']=time();
-                    $dataList[]=$data;
+                    //判断网址是否存在
+                    $url_count=Db::name("url_search")->where(['surl_url'=>$value])->count();
+                    if(!$url_count){
+                        $data=[];
+                        $data['surl_site_id']=$keys_list['site_id'];
+                        $data['surl_keys_id']=$keys_list['keys_id'];
+                        $data['surl_url']=$value;
+                        $data['surl_create_times']=time();
+                        $dataList[]=$data;
+                    }
                 }
             }
             $res=Db::name("url_search")->insertAll($dataList);

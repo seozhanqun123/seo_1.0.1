@@ -13,8 +13,9 @@ class Seo{
         ->limit(1)->select()->toArray();
 
         if(!count($post)){
+            echo '没有数据了';
             sleep(15);
-            return "没有数据了\n";
+            return "\n";
         }
         
         $article=$post[0];
@@ -29,13 +30,25 @@ class Seo{
             Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
             return "标题没有中文 直接删除\n";
         }
-        
         //标题太长 直接删除
         if(mb_strlen($article['article_title'])>60){
             Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
             return "标题太长 直接删除\n";
         }
-        
+        //内容太长 直接删除
+        if(strlen($article['article_body'])>=100000){
+            Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
+            return "内容太长 直接删除\n";
+        }
+        //如果P标签少于10 则删除
+        preg_match_all('/<p[^\>]*|<br>/ism',$post[0]['article_body'],$match);
+        $t=count($match[0]);
+        $rt=mb_strlen(strip_tags($post[0]['article_body']));
+        if($t==0 || ($rt/$t)<40){
+            Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
+            return "文章内容太混乱 直接删除\n";
+        }
+
         //判断文章是否有违禁词
         
         //去除电话号码
@@ -82,6 +95,7 @@ class Seo{
         $article_des=trim(mb_substr(strip_tags($naipan),0,85));
         $article_des=str_replace("　",'',$article_des);
         $article_des=str_replace(" ",'',$article_des);
+        $article_des=str_replace("\"",'',$article_des);
         
         $article_res=[];
         $article_res['article_tags']=$tags_keys;
@@ -90,6 +104,9 @@ class Seo{
         $article_res['article_status']=1;
         
         Db::name("article")->where(['article_id'=>$article['article_id']])->save($article_res);
+        
+        //统计关键词下面有多少个文章
+        Db::name("keys_list")->where(['keys_id'=>$article['article_keys_id']])->inc('keys_article_count')->update();
         
         return "伪原创成功：".$article['article_title']."\n";
         

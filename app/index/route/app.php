@@ -18,6 +18,8 @@ Route::get('/article/:id','Article/index');
 
 Route::get('/tags/:name','Tags/index');
 
+Route::get('/keys/:id','Keys/index');
+
 Route::get('/test','Pages/index');
 
 Route::miss("error/miss");

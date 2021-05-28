@@ -6,9 +6,216 @@ use PullWord\PullWord;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 use think\facade\Db;
+use QL\QueryList;
+use QL\Ext\AbsoluteUrl;
+use QL\Ext\CurlMulti;
 
 class Pages extends BaseController{
     public function index(){
+        $post=Db::name("article")->where(['article_status'=>0])->limit(200)->select()->toArray();
+        
+        if(!count($post)){
+            echo '没有数据了';
+            exit;
+        }
+        
+        $count=Db::name("article")->where(['article_status'=>0])->count();
+        
+        echo "还有数据：{$count}<br>";
+
+        foreach ($post as $value) {
+            if(strlen($value['article_body'])>=100000){
+                Db::name("article")->where(['article_id'=>$value['article_id']])->delete();
+                echo "内容太长 直接删除<br>";
+            }else{
+                //判断标题是否带*号
+                $er=strstr($value['article_title'], '*');
+                if(!!$er){
+                    Db::name("article")->where(['article_id'=>$value['article_id']])->delete();
+                    echo "标题带*号 直接删除<br>";
+                }else{
+                    //如果P标签少于10 则删除
+                    preg_match_all('/<p[^\>]*|<br>/ism',$value['article_body'],$match);
+                    $t=count($match[0]);
+                    $rt=mb_strlen(strip_tags($value['article_body']));
+
+                    if($t==0 || ($rt/$t)<25){
+                        Db::name("article")->where(['article_id'=>$value['article_id']])->delete();
+                        echo "【".(int)($t==0 ? '0' : $rt/$t)."】<a href='/article/{$value['article_id']}.html' target='_blank'>文章内容太混乱 直接删除</a><br>";
+                    }else{
+                        // echo '通过：'.$value['article_title'];
+                    
+                        Db::name("article")->where(['article_id'=>$value['article_id']])->save(['article_status'=>1]);
+                        
+                        // echo '<br>';
+                    }
+                }
+            }
+
+        }
+        
+        //内容太长 直接删除
+
+        echo '<script>location.href=location.href</script>';
+        
+        exit;
+
+        // $post=Db::name("article")->where(['article_id'=>24076])->limit(1)->select()->toArray();
+        
+        $post=Db::name("article")->where(['article_status'=>1,'article_site_id'=>1])->limit(rand(1,9999),1)->select()->toArray();
+        
+        // var_dump($post);
+        
+        echo "<a href='/article/{$post[0]['article_id']}' target='_blank'>{$post[0]['article_title']}</a>";
+        
+        var_dump($post[0]['article_title']);
+        
+        // var_dump($post);
+  
+        preg_match_all('/<p[^\>]*|<br>/ism',$post[0]['article_body'],$match);
+        
+        $t=count($match[0]);
+        
+        echo "总计标签：".$t."\n";
+        
+        // var_dump(count($match[0]));
+        
+        $rt=mb_strlen(strip_tags($post[0]['article_body']));
+        
+        echo "文字总数：".$rt."\n";
+        
+        echo "比例：".($rt/$t)<35;
+        
+        exit;
+
+        //开始提交外链
+        $link_submit_site_cache=(int)cache("link_submit_site");
+        
+        //查询站点是否存在
+        $site=Db::name("site")->where(['site_id'=>$link_submit_site_cache,'site_status'=>1])->limit(1)->select()->toArray();
+        
+        if(!count($site)){
+            $site=Db::name("site")->where(['site_status'=>1])->order("site_id asc")->limit(1)->select()->toArray();
+        }
+        $site=$site[0];
+        
+        cache("link_submit_site",$site['site_id']);
+        
+        $link_submit_link_id=(int)cache("link_submit_link_id");
+        $link_submit_link_id_res=Db::name("link_submit")->where([['ls_id','>',$link_submit_link_id]])->order("ls_id asc")->limit(1)->select()->toArray();
+        
+        //切换网站
+        if(!count($link_submit_link_id_res)){
+            cache("link_submit_site",$link_submit_site_cache+1);
+            cache("link_submit_link_id",0);
+            return "切换网站\n";
+        }
+        $link_submit_link_id_res=$link_submit_link_id_res[0];
+        
+        //替换网址
+        $url=str_replace('{domain}',$site['site_domain'],$link_submit_link_id_res['ls_link']);
+
+        $client = new \GuzzleHttp\Client();
+        $response = $client->request('GET',$url,[
+            'verify'=>false,
+            'stream' => true,
+            'read_timeout' => 3,
+            'http_errors'=>false,
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',
+            ],
+        ]);
+        
+        echo "提交链接：{$url}\n";
+        
+        try {
+            if($response->getStatusCode()==200){
+                // return '提交成功：200';
+                Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->inc('ls_success')->update();
+            }
+        } catch (Exception $e) {
+            Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->inc('ls_error')->update();
+        }
+        
+        cache("link_submit_link_id",$link_submit_link_id+1);
+        
+        return '提交成功';
+        
+        // return '提交成功：400';
+
+        exit;
+        $link_submit_count_cache=(int)cache("link_submit")+1;
+        
+
+        //外链批量提交
+        // $client = new \GuzzleHttp\Client();
+        // $response = $client->request('POST','http://www.cjzzc.com/wailian.html?page=1',[
+        //     'verify'=>false,
+        //     'stream' => true,
+        //     'read_timeout' => 3,
+        //     'http_errors'=>false,
+        //     'headers' => [
+        //         'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',
+        //     ],
+        //     'form_params'=>[
+        //         'url'=>'aidafo.com',
+        //         'token_cjzzc'=>'ea2789b0375fda72a33d036ddc968b81',
+        //         'page'=>100,
+        //     ]
+        // ]);
+        
+        // $html=trim($response->getBody());
+        
+        // var_dump($html);
+        
+        // exit;
+        
+        $ql = QueryList::post('http://www.cjzzc.com/wailian.html?page='.$link_submit_count_cache, [
+                    'url'=>'aidafo.com',
+                    'token_cjzzc'=>'ea2789b0375fda72a33d036ddc968b81',
+                    'page'=>$link_submit_count_cache*10,
+                ], [
+                'headers' => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36',
+                ],
+                'timeout'=>5,
+                
+            ])->rules(['title'=>array('#list-table a','texts'),]);
+
+        $data=$ql->queryData();
+
+        $n=0;
+        foreach ($data['title'] as $value) {
+            $value=htmlspecialchars_decode(str_replace('aidafo.com','{domain}',$value));
+            $host=parse_url($value)['host'];
+            $ls_count=Db::name("link_submit")->where(['ls_link'=>$value])->count();
+
+            var_dump($ls_count);
+
+            if(!($ls_count)){
+                $res=Db::name("link_submit")->save([
+                    'ls_domain'=>$host,
+                    'ls_link'=>$value
+                ]);
+                if($res){
+                    $n+=1;
+                }
+            }
+        }
+
+        cache("link_submit",$link_submit_count_cache);
+        
+        echo "当前第{$link_submit_count_cache}页\n";
+        
+        $count=Db::name("link_submit")->count();
+        
+        echo "当前总计有数据：{$count}\n";
+        
+        echo "成功添加：{$n}";
+        
+        echo "<script>location.href=location.href</script>";
+
+        exit;
         
         // $a= Db::query("SELECT t1.`article_id`,t1.`article_title` FROM `article` AS t1 JOIN (SELECT ROUND( RAND () * ((SELECT MAX(article_id) FROM `article`)-(SELECT MIN(article_id) FROM `article`))+(SELECT MIN(article_id) FROM `article`)) AS article_id) AS t2 WHERE t1.article_id >= t2.article_id and article_site_id=2 and article_status=1 LIMIT 10");
         

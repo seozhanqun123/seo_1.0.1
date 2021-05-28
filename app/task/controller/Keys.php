@@ -11,9 +11,7 @@ use think\facade\Db;
 class Keys{
 
     public function index(){
-
         set_time_limit(20);
-        
         // $cache_name='kesy_aedfsafsfs';
         // $search_kesy_aedferdf=cache($cache_name);
         
@@ -32,20 +30,21 @@ class Keys{
             ->join(['site'=>'s'],'s.site_id=kt.keyst_site_id')
             // ->where('keys_length>0 and keys_length<=8 and keys_last_times<='.(time()-3600))
             ->where('keys_length>0 and keys_length<=8')
-            ->order("keyst_collection_times asc,keys_last_times asc")
+            ->order("site_task_keys_times,keyst_collection_times asc")
             ->limit(1)->select()->toArray();
-        
-        Db::name("keys_type")->where(['keyst_id'=>$list[0]['keyst_id']])->update(['keyst_collection_times'=>time()]);
-   
-        //更改当前关键词最后一次采集时间
-        Db::name("keys_list")->where(['keys_id'=>$list[0]['keys_id']])->save([
-            'keys_last_times'=>time(),
-        ]);
 
         if(!count($list)){
             echo "没有关键词了\n";
             return "\n";
         }
+        
+        Db::name("keys_type")->where(['keyst_id'=>$list[0]['keyst_id']])->update(['keyst_collection_times'=>time()]);
+        Db::name("site")->where(['site_id'=>$list[0]['site_id']])->save(['site_task_keys_times'=>time()]);
+   
+        //更改当前关键词最后一次采集时间
+        Db::name("keys_list")->where(['keys_id'=>$list[0]['keys_id']])->save([
+            'keys_last_times'=>time(),
+        ]);
         
         echo "采集大类：{$list[0]['keyst_title']}\n";
         

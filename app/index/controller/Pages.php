@@ -9,10 +9,56 @@ use think\facade\Db;
 use QL\QueryList;
 use QL\Ext\AbsoluteUrl;
 use QL\Ext\CurlMulti;
+use samdark\sitemap\Sitemap;
+use samdark\sitemap\Index;
 
 class Pages extends BaseController{
     public function index(){
-        $post=Db::name("article")->where(['article_status'=>0])->limit(200)->select()->toArray();
+        $file=$_SERVER['DOCUMENT_ROOT'].'/sitemap_site_'.$GLOBALS['site']['site_id'].'.xml';
+        //判断文件是否存在
+        if(!is_file($file)){
+            
+        }
+        
+        $sitemap = new Sitemap($file);
+        
+        $sitemap->setMaxUrls(25000);
+        
+        $article_list=Db::name("article")
+            ->where(['article_site_id'=>$GLOBALS['site']['site_id'],'article_status'=>1])
+            ->limit(10)
+            ->field(['article_id','article_times'])
+            ->order("article_times desc")->select()->toArray();
+        
+        foreach ($article_list as $value) {
+            $url="http://".$GLOBALS['site']['site_domain'].'/article/'.$value['article_id'].'.html';
+            $sitemap->addItem($url,$value['article_times']);
+        }
+
+        $sitemap->write();
+
+        exit;
+        
+        $keys=Db::name("keys_list")->where('keys_article_count=-1')->limit(300)->select()->toArray();
+        
+        if(!count($keys)){
+            echo '没有数据了';
+            exit;
+        }
+
+        foreach ($keys as $value) {
+            $article_count=Db::name("article")->where(['article_keys_id'=>$value['keys_id']])->count();
+            echo "当前关键词：{$value['keys_name']}  统计数据：{$article_count}<br>";
+            Db::name("keys_list")->where(['keys_id'=>$value['keys_id']])->save([
+                'keys_article_count'=>$article_count
+            ]);
+        }
+        
+        echo '<script>location.href=location.href</script>';
+
+        return '';
+        
+        $post=Db::name("article")->where(['article_id'=>22737])->limit(1)->select()->toArray();
         
         if(!count($post)){
             echo '没有数据了';
@@ -39,15 +85,15 @@ class Pages extends BaseController{
                     $t=count($match[0]);
                     $rt=mb_strlen(strip_tags($value['article_body']));
 
-                    if($t==0 || ($rt/$t)<25){
+                    if($t<=5 || ($rt/$t)<25){
                         Db::name("article")->where(['article_id'=>$value['article_id']])->delete();
                         echo "【".(int)($t==0 ? '0' : $rt/$t)."】<a href='/article/{$value['article_id']}.html' target='_blank'>文章内容太混乱 直接删除</a><br>";
                     }else{
-                        // echo '通过：'.$value['article_title'];
+                        echo "【".(int)($t==0 ? '0' : $rt/$t).'】通过：'.$value['article_title'];
                     
                         Db::name("article")->where(['article_id'=>$value['article_id']])->save(['article_status'=>1]);
                         
-                        // echo '<br>';
+                        echo '<br>';
                     }
                 }
             }
@@ -56,7 +102,7 @@ class Pages extends BaseController{
         
         //内容太长 直接删除
 
-        echo '<script>location.href=location.href</script>';
+        // echo '<script>location.href=location.href</script>';
         
         exit;
 

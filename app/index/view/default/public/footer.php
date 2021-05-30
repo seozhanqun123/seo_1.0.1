@@ -1,5 +1,5 @@
 <div id="footer">
-	<p>本站所有数据全部来源于互联网，不代表本站观点！</p>
+	<p>本站所有数据全部来源于互联网，不代表本站观点！<a href="/sitemap_site_{$GLOBALS['site']['site_id']}.xml">Sitemap地图</a></p>
 </div>
 
 <div style="display:none;">

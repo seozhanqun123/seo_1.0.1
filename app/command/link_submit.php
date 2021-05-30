@@ -23,7 +23,7 @@ class link_submit extends Command
     protected function execute(Input $input, Output $output)
     {
 
-        \Swoole\Timer::tick(1000, function () {
+        \Swoole\Timer::tick(3000, function () {
             $this->inits();
         });
         
@@ -45,7 +45,7 @@ class link_submit extends Command
         cache("link_submit_site",$site['site_id']);
         
         $link_submit_link_id=(int)cache("link_submit_link_id");
-        $link_submit_link_id_res=Db::name("link_submit")->where([['ls_id','>',$link_submit_link_id]])->order("ls_id asc")->limit(1)->select()->toArray();
+        $link_submit_link_id_res=Db::name("link_submit")->where([['ls_id','>',$link_submit_link_id]])->where(['ls_status'=>1])->order("ls_id asc")->limit(1)->select()->toArray();
         
         //切换网站
         if(!count($link_submit_link_id_res)){

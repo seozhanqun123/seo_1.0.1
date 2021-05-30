@@ -44,7 +44,7 @@ class Seo{
         preg_match_all('/<p[^\>]*|<br>/ism',$post[0]['article_body'],$match);
         $t=count($match[0]);
         $rt=mb_strlen(strip_tags($post[0]['article_body']));
-        if($t==0 || ($rt/$t)<40){
+        if($t<=5 || ($rt/$t)<40){
             Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
             return "文章内容太混乱 直接删除\n";
         }

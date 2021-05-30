@@ -23,6 +23,11 @@ class Inits
             $site=Db::name("site")->where(['site_domain'=>'aidafo.com'])->limit(1)->select()->toArray();
         }
         $site=$site[0];
+        
+        if(count($domain_array)>=3){
+            header("location:http://".$domain);
+            exit;
+        }
 
         //站点
         $GLOBALS['site']=$site;

@@ -12,14 +12,16 @@ use think\facade\Route;
 
 Route::get('/','index/index');
 
-Route::get('/types/:id','Types/index');
+Route::get('/types/:id','Types/index')->ext("html");
 
-Route::get('/article/:id','Article/index');
+Route::get('/article/:id','Article/index')->ext("html");
 
-Route::get('/tags/:name','Tags/index');
+Route::get('/tags/:name','Tags/index')->ext("html");
 
-Route::get('/keys/:id','Keys/index');
+Route::get('/keys/:id','Keys/index')->ext("html");
 
 Route::get('/test','Pages/index');
+
+Route::get('/sitemap','Sitemapall/index')->ext("xml");
 
 Route::miss("error/miss");

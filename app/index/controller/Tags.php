@@ -13,9 +13,9 @@ class Tags extends BaseController{
         if(!$name){
             return $this->error('内容不存在1');
         }
-        $page=(int)input("get.page/d");
-        if($page<1){
-            $page=1;
+        $pages=(int)input("get.page/d");
+        if($pages<1){
+            $pages=1;
         }
         
         $vArticle = new vArticle();
@@ -40,8 +40,7 @@ class Tags extends BaseController{
             
         //     return '';
         // }
-        
-        
+
         $article_list=Db::name("article")
             ->where([
                 'article_site_id'=>$GLOBALS['site']['site_id'],
@@ -54,6 +53,15 @@ class Tags extends BaseController{
             ->paginate(10);
 
         $page = $article_list->render();
+
+        if($pages==1){
+            $keys_rand_list=Db::query("SELECT t1.`keys_id`,t1.`keys_name` FROM `keys_list` AS t1 JOIN (SELECT ROUND( RAND () * ((SELECT MAX(keys_id) FROM `keys_list` where keys_site_id=".$GLOBALS['site']['site_id']." and keys_article_count>=10)-(SELECT MIN(keys_id) FROM `keys_list` where keys_site_id=".$GLOBALS['site']['site_id']." and keys_article_count>=10))+(SELECT MIN(keys_id) FROM `keys_list` where keys_site_id=".$GLOBALS['site']['site_id']." and keys_article_count>=10)) AS keys_id) AS t2 WHERE t1.keys_id >= t2.keys_id and keys_site_id=".$GLOBALS['site']['site_id']." and keys_article_count>=10 LIMIT 10");
+        }else{
+            $keys_rand_list=[];
+        }
+        
+        View::assign('keys_rand_list',$keys_rand_list);
+        
         
         $mArticle=new mArticle();
         $article_rand_1=$mArticle->article_rand();

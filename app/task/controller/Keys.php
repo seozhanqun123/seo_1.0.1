@@ -30,7 +30,7 @@ class Keys{
             ->join(['site'=>'s'],'s.site_id=kt.keyst_site_id')
             // ->where('keys_length>0 and keys_length<=8 and keys_last_times<='.(time()-3600))
             ->where('keys_length>0 and keys_length<=8')
-            ->order("site_task_keys_times,keyst_collection_times asc")
+            ->order("site_task_keys_times,keyst_collection_times asc,keys_last_times asc")
             ->limit(1)->select()->toArray();
 
         if(!count($list)){

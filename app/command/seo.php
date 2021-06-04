@@ -22,7 +22,7 @@ class seo extends Command
     protected function execute(Input $input, Output $output)
     {
         
-        \Swoole\Timer::tick(1000, function () {
+        \Swoole\Timer::tick(60000, function () {
             $cSeo=new cSeo();
             $res=$cSeo->index();
             echo $res;

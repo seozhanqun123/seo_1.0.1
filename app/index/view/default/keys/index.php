@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" xml:lang="zh-cn">
 <head>
-<title>{$keys['keys_name']}所有的文章 - {$GLOBALS['site']['site_title']}</title>
-<meta name="keywords" content="{$GLOBALS['site']['site_keys']}" />
+<title>{$keys['keys_name']}-{$GLOBALS['site']['site_title']}</title>
+<meta name="keywords" content="{$keys['keys_name']}" />
 <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" type="text/css" href="/skin/{$GLOBALS['temp']}/style.css">

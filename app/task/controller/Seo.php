@@ -31,7 +31,7 @@ class Seo{
             return "标题没有中文 直接删除\n";
         }
         //标题太长 直接删除
-        if(mb_strlen($article['article_title'])>60){
+        if(mb_strlen($article['article_title'])>40){
             Db::name("article")->where(['article_id'=>$article['article_id']])->delete();
             return "标题太长 直接删除\n";
         }

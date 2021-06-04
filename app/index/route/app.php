@@ -20,7 +20,11 @@ Route::get('/tags/:name','Tags/index')->ext("html");
 
 Route::get('/keys/:id','Keys/index')->ext("html");
 
+Route::get('/keys_list/:id','Keys/lists')->ext("html");
+
 Route::get('/test','Pages/index');
+
+Route::get('/domain','Domain/index');
 
 Route::get('/sitemap','Sitemapall/index')->ext("xml");
 

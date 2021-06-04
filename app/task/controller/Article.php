@@ -24,7 +24,7 @@ class Article{
         $surl=Db::name("url_search")->limit(1)->select()->toArray();
 
         if(!count($surl)){
-            echo "没有要采集的文章了\n";
+            // echo "没有要采集的文章了\n";
             // $cSearch=new cSearch();
             // $cSearch->index();
             return '';
@@ -39,7 +39,7 @@ class Article{
             ->where(['keys_id'=>$surl['surl_keys_id']])
             ->limit(1)->select()->toArray();
         if(!count($keys)){
-            echo "关键词不存在，准备调用搜索引擎采集\n";
+            // echo "关键词不存在，准备调用搜索引擎采集\n";
             $cSearch=new cSearch();
             $cSearch->index();
             return '';
@@ -48,7 +48,7 @@ class Article{
 
         // $surl['surl_url']='https://www.baidu.com/link?url=m9HGTegnOhs35wnDPbNxnItvUhYPujwbAvepOLyiNGntAPkxBXdh3xK0iflF47Z8kugRcq0-USuGrEVDXm14mq&wd=&eqid=fa61b0280001d86600000006609373d2';
 
-        echo "当前采集网址：{$surl['surl_url']}\n";
+        // echo "当前采集网址：{$surl['surl_url']}\n";
         
 
         // $client = new \GuzzleHttp\Client();
@@ -73,12 +73,12 @@ class Article{
         $url_info=parse_url($surl['surl_url']);
         if(!empty($url_info['host']) && $url_info['host']!='www.baidu.com'){
             if(empty($url_info['host'])){
-                echo "网站错误\n";
+                // echo "网站错误\n";
                 return '';
             }
             $domain_status_count=Db::name("dlog")->where(['dlog_domain'=>$url_info['host'],'dlog_status'=>4])->count();
             if($domain_status_count){
-                echo "此网站禁止采集\n";
+                // echo "此网站禁止采集\n";
                 return '';
             }
         }
@@ -86,7 +86,7 @@ class Article{
         $response=$this->curl(['url'=>$surl['surl_url']]);
 
         if(!$response){
-            echo "网站无法访问\n";
+            // echo "网站无法访问\n";
             return '';
         }
 
@@ -109,19 +109,19 @@ class Article{
                 //判断当前网站是否已经被禁用
                 $url_info=parse_url($url);
                 if(empty($url_info['host'])){
-                    echo "网站错误\n";
+                    // echo "网站错误\n";
                     return '';
                 }
                 $domain_status_count=Db::name("dlog")->where(['dlog_domain'=>$url_info['host'],'dlog_status'=>4])->count();
 
                 if($domain_status_count){
-                    echo "此网站禁止采集\n";
+                    // echo "此网站禁止采集\n";
                     return '';
                 }
 
                 $readability=$this->getArticle($html);
 
-                echo "最终采集网址：{$url}\n";
+                // echo "最终采集网址：{$url}\n";
 
                 $dlog_res=Db::name("dlog")->where(['dlog_domain'=>$url_info['host']])->limit(1)->select()->toArray();
 
@@ -144,9 +144,9 @@ class Article{
                             echo "成功采集文章：{$readability['title']}\n";
                         }
                     }else{
-                        echo "文章已经存在了\n";
+                        // echo "文章已经存在了\n";
                     }
-                    echo $readability['msg']."\n";
+                    // echo $readability['msg']."\n";
 
                     if(count($dlog_res)){
                         Db::name("dlog")->where(['dlog_id'=>$dlog_res[0]['dlog_id']])->inc('dlog_success')->update();
@@ -169,12 +169,12 @@ class Article{
                             Db::name("dlog")->save(['dlog_domain'=>$url_info['host'],'dlog_error'=>1]);
                         }
                     }
-                    echo "数据已经删除\n";
-                    echo $readability['msg']."\n";
+                    // echo "数据已经删除\n";
+                    // echo $readability['msg']."\n";
                 }
             }
         } catch (Exception $e) {
-            echo "数据采集失败\n";
+            // echo "数据采集失败\n";
         }
 
     }
@@ -236,7 +236,7 @@ class Article{
                 $current_encode = mb_detect_encoding($html, array("ASCII","GB2312","GBK",'BIG5','UTF-8')); 
                 $html = mb_convert_encoding($html,"UTF-8",$current_encode);
             }catch(Exception $e){
-                $article_array['msg']='没有采集到文章内容';
+                // $article_array['msg']='没有采集到文章内容';
                 return $article_array;
             }
             $readability->parse($html);
@@ -245,14 +245,14 @@ class Article{
 
             if(!$title || mb_strlen($title)<=7){
                 $article_array['status']=400;
-                $article_array['msg']='标题不存在，或字数不足=>'.$title;
+                // $article_array['msg']='标题不存在，或字数不足=>'.$title;
                 return $article_array;
             }
 
             $body=$readability->getContent();
             if(!$body){
                 $article_array['status']=400;
-                $article_array['msg']='没有采集到文章内容';
+                // $article_array['msg']='没有采集到文章内容';
                 return $article_array;
             }
 
@@ -309,7 +309,8 @@ class Article{
 
             if(mb_strlen($text)<=500){
                 $article_array['status']=400;
-                $article_array['msg']="文章字数不足200字\n";
+                // $article_array['msg']="文章字数不足500字\n";
+                $article_array['msg']="";
                 return $article_array;
             }
 
@@ -329,11 +330,13 @@ class Article{
 
             $article_array['status']=200;
             $article_array['msg']="采集成功\n";
+            $article_array['msg']="";
 
             return $article_array;
         } catch (ParseException $e) {
             $article_array['status']=400;
             $article_array['msg']="没有采集到文章内容\n";
+            $article_array['msg']="";
             return $article_array;
         }
     }

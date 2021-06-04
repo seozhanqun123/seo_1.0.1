@@ -36,7 +36,7 @@ class Types extends BaseController{
         //总计多少页 分页
         $sql_count="select count(*) as count_num from article where article_site_id = {$GLOBALS['site']['site_id']} and article_type_id={$id} and article_status=1";
         $counts = Db::query($sql_count)[0]['count_num'];
-        $type_list = Bootstrap::make($sql,10,10,$counts,false,['path'=>Bootstrap::getCurrentPath(),'query'=>request()->param()]);
+        $type_list = Bootstrap::make($sql,10,10,$counts,false,['path'=>'']);
         $page = $type_list->render();
 
         $mArticle=new mArticle();

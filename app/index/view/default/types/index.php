@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" xml:lang="zh-cn">
 <head>
 <title>{$type['keyst_title']}-{$GLOBALS['site']['site_title']}</title>
 <meta name="keywords" content="{$type['keyst_title']}" />

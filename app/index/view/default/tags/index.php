@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-cn" xml:lang="zh-cn">
 <head>
 <title>{$tag_name}所有的文章 - {$GLOBALS['site']['site_title']}</title>
 <meta name="keywords" content="{$GLOBALS['site']['site_keys']}" />
@@ -14,6 +14,7 @@
 <div class="box">
 	<div class="box_left">
 		<div class="list">
+		    {volist name="keys_rand_list" id="vo"}<a href="{$GLOBALS['host_url']}/keys/{$vo.keys_id}.html" target="_blank">{$vo.keys_name}</a>{/volist}
 		    {volist name="article_list" id="vo"}
     		<li>
     			<h3><a href="{$GLOBALS['host_url']}/article/{$vo.article_id}.html" target="_blank">{$vo.article_title}</a></h3>
@@ -44,6 +45,13 @@
 		</div>
 	</div>
 </div>
+
+<style>
+.list a{
+    margin: 8px;
+    display: inline-block;
+}
+</style>
 
 {include file="default/public/footer" /}
 

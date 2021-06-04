@@ -1,25 +1,28 @@
 <!DOCTYPE html>
 <html lang="zh-cn" xml:lang="zh-cn">
 <head>
-<title>{$GLOBALS['site']['site_title']}</title>
-<meta name="keywords" content="{$GLOBALS['site']['site_keys']}" />
+<title>{$keys['keys_name']}-{$GLOBALS['site']['site_title']}</title>
+<meta name="keywords" content="{$keys['keys_name']}" />
 <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" type="text/css" href="/skin/{$GLOBALS['temp']}/style.css">
-<meta name="google-site-verification" content="laQ0xB9HHrP-DnP9eK_Miy_8QersEJomdgq_MmkB9rs" />
 </head>
 <body>
 
 {include file="default/public/header" /}
 
 <div class="box">
-	<div class="box_left list">
-		{volist name="index_list" id="vo"}
-		<li>
-			<h3><a href="{$GLOBALS['host_url']}/article/{$vo.article_id}.html" target="_blank">{$vo.article_title}</a></h3>
-			<p>{$vo.article_des}</p>
-		</li>
-		{/volist}
+	<div class="box_left" style="background:#fff;">
+		<div class="list">
+		    {volist name="keys_list" id="vo"}<a href="{$GLOBALS['host_url']}/keys/{$vo.keys_id}.html" target="_blank">{$vo.keys_name}</a>{/volist}
+		    {volist name="keys_rand_list" id="vo"}<a href="{$GLOBALS['host_url']}/keys/{$vo.keys_id}.html" target="_blank">{$vo.keys_name}</a>{/volist}
+		    {volist name="article_list" id="vo"}
+    		<li>
+    			<h3><a href="{$GLOBALS['host_url']}/article/{$vo.article_id}.html" target="_blank">{$vo.article_title}</a></h3>
+    			<p><?php echo htmlspecialchars_decode($vo['article_des']); ?></p>
+    		</li>
+    		{/volist}
+		</div>
 	</div>
 	<div class="box_right">
 		<div class="box_title">
@@ -42,6 +45,13 @@
 		</div>
 	</div>
 </div>
+
+<style>
+.list a{
+    margin: 8px;
+    display: inline-block;
+}
+</style>
 
 {include file="default/public/footer" /}
 

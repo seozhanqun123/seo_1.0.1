@@ -22,11 +22,11 @@ class link_submit extends Command
 
     protected function execute(Input $input, Output $output)
     {
-
-        \Swoole\Timer::tick(3000, function () {
-            $this->inits();
+        \Swoole\Timer::tick(100, function () {
+            for ($i = 0; $i < 1; $i++) {
+                 $this->inits();
+            }
         });
-        
         \Swoole\Event::wait();
     }
     
@@ -49,20 +49,31 @@ class link_submit extends Command
         
         //切换网站
         if(!count($link_submit_link_id_res)){
-            cache("link_submit_site",$link_submit_site_cache+1);
+            $rrc=Db::name("site")->where([['site_id','>',$link_submit_site_cache]])->limit(1)->select()->toArray();
+            if(count($rrc)){
+                $site=$rrc[0];
+            }else{
+                $site=Db::name("site")->where(['site_status'=>1])->order("site_id asc")->limit(1)->select()->toArray();
+                $site=$site[0];
+            }
+            cache("link_submit_site",$site['site_id']);
             cache("link_submit_link_id",0);
             echo "切换网站\n";
             return '';
         }
         $link_submit_link_id_res=$link_submit_link_id_res[0];
         
+        Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->select()->toArray();
+        
+        echo "{$site['site_name']}-{$link_submit_link_id_res['ls_id']}\n";
+        
+        cache("link_submit_link_id",$link_submit_link_id+1);
+
         //替换网址
         $url=str_replace('{domain}',$site['site_domain'],$link_submit_link_id_res['ls_link']);
         
         echo "发送链接：{$url}\n";
 
-        cache("link_submit_link_id",$link_submit_link_id+1);
-        
         try {
             $client = new \GuzzleHttp\Client();
             $response = $client->request('GET',$url,[
@@ -77,13 +88,16 @@ class link_submit extends Command
             ]);
             if($response->getStatusCode()==200){
                 Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->inc('ls_success')->update();
-                echo "提交成功：200 【{$site['site_name']}】\n";
+                echo "提交成功：200 【{$site['site_name']}】-{$link_submit_link_id}\n";
                 return "";
             }
         } catch (\Exception $e) {
-            Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->inc('ls_error')->update();
+            
         }
-        echo "提交成功：400 【{$site['site_name']}\n";
+        
+        Db::name("link_submit")->where(['ls_id'=>$link_submit_link_id_res['ls_id']])->inc('ls_error')->update();
+
+        echo "提交成功：400 【{$site['site_name']}-{$link_submit_link_id}\n";
         return '';
     }
 }

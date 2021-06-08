@@ -2,15 +2,13 @@
 namespace app\task\controller;
 use app\BaseController;
 use think\facade\Db;
-use PullWord\PullWord;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ClientException;
 
 class Seo{
     public function index(){
-        $post=Db::name("article")->where(['article_status'=>0])
-        ->orderRaw("rand()")
-        ->limit(1)->select()->toArray();
+        $post=Db::name("article")->where(['article_status'=>0])->limit(1)->select()->toArray();
+        // ->orderRaw("rand()")
 
         if(!count($post)){
             echo '没有数据了';
@@ -52,39 +50,41 @@ class Seo{
         //判断文章是否有违禁词
         
         //去除电话号码
+
         
         //开始分词
-        $pullWord = new PullWord($article['article_title']);
-        $result = $pullWord->pull()->debug()->threshold(0.8)->toJson()->get();
+        // $pullWord = new PullWord($article['article_title']);
+        // $result = $pullWord->pull()->debug()->threshold(0.8)->toJson()->get();
 
-        $tags_array=json_decode(trim($result),true);
+        // $tags_array=json_decode(trim($result),true);
         
-        $tags_array_new=[];
+        // $tags_array_new=[];
         
-        //先获取到等于为1的关键词
-        foreach ($tags_array as $key => $value) {
-            if($value['p']>=1){
-                $tags_array_new[]=$value['t'];
-            }
-        }
-        //判断关键词是否大于五个
-        if(count($tags_array_new)<5){
-            foreach ($tags_array as $key => $value) {
-                if($value['p']>=0.9 && $value['p']<1){
-                    $tags_array_new[]=$value['t'];
-                }
-            }
-        }
-        if(count($tags_array_new)<5){
-            foreach ($tags_array as $key => $value) {
-                if($value['p']>=0.8 && $value['p']<1){
-                    $tags_array_new[]=$value['t'];
-                }
-            }
-        }
-        $tags_array_new=array_unique($tags_array_new);
-        $tags_array_new=array_slice($tags_array_new,0,5);
-        $tags_keys=implode(",",$tags_array_new);
+        // //先获取到等于为1的关键词
+        // foreach ($tags_array as $key => $value) {
+        //     if($value['p']>=1){
+        //         $tags_array_new[]=$value['t'];
+        //     }
+        // }
+        // //判断关键词是否大于五个
+        // if(count($tags_array_new)<5){
+        //     foreach ($tags_array as $key => $value) {
+        //         if($value['p']>=0.9 && $value['p']<1){
+        //             $tags_array_new[]=$value['t'];
+        //         }
+        //     }
+        // }
+        // if(count($tags_array_new)<5){
+        //     foreach ($tags_array as $key => $value) {
+        //         if($value['p']>=0.8 && $value['p']<1){
+        //             $tags_array_new[]=$value['t'];
+        //         }
+        //     }
+        // }
+        // $tags_array_new=array_unique($tags_array_new);
+        // $tags_array_new=array_slice($tags_array_new,0,5);
+        // $tags_keys=implode(",",$tags_array_new);
+        $tags_keys='';
 
         //开始进行伪装原创
         $naipan=$this->naipan($article['article_body']);
@@ -101,7 +101,7 @@ class Seo{
         $article_res['article_tags']=$tags_keys;
         $article_res['article_des']=$article_des;
         $article_res['article_body']=$naipan;
-        $article_res['article_status']=1;
+        $article_res['article_status']=5;
         
         Db::name("article")->where(['article_id'=>$article['article_id']])->save($article_res);
         

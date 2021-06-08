@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "99b672b04e6498e915af7b202248c8b5",
+    "content-hash": "132b7aec0cb5236ee9181ebc6560087f",
     "packages": [
         {
             "name": "andreskrey/readability.php",
@@ -932,6 +932,46 @@
                 "source": "https://github.com/liliuwei/thinkphp-jump/tree/v1.5"
             },
             "time": "2020-03-20T15:11:56+00:00"
+        },
+        {
+            "name": "lizhichao/word",
+            "version": "v2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lizhichao/VicWord.git",
+                "reference": "f17172d45f505e7140da0bde2103defc13255326"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lizhichao/VicWord/zipball/f17172d45f505e7140da0bde2103defc13255326",
+                "reference": "f17172d45f505e7140da0bde2103defc13255326",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Lizhichao\\Word\\": "Lib"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "tanszhe",
+                    "email": "1018595261@qq.com"
+                }
+            ],
+            "description": "This is a participle library",
+            "support": {
+                "issues": "https://github.com/lizhichao/VicWord/issues",
+                "source": "https://github.com/lizhichao/VicWord/tree/master"
+            },
+            "time": "2020-07-30T07:33:06+00:00"
         },
         {
             "name": "nette/php-generator",

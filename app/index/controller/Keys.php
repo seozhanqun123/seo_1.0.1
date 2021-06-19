@@ -28,6 +28,7 @@ class Keys extends BaseController{
         $article_list=Db::name("article")->where([
             'article_site_id'=>$GLOBALS['site']['site_id'],
             'article_keys_id'=>$keys['keys_id'],
+            'article_status'=>1
         ])->field(['article_id','article_title','article_des'])->limit(10)->select()->toArray();
  
         $mArticle=new mArticle();

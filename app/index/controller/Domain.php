@@ -26,14 +26,14 @@ class Domain extends BaseController{
         $r='';
         if($doamin_curl['status']==true){
             if($doamin_curl['available']==true){
-                Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>1]);
+                Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>1,'dont_length'=>strlen($domain['dont_host'])]);
                 $r='未注册';
             }else{
-                Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>4]);
+                Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>4,'dont_length'=>strlen($domain['dont_host'])]);
                 $r='已经注册';
             }
         }else{
-            Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>7]);
+            Db::name("domain_not")->where(['dnot_id'=>$domain['dnot_id']])->save(['domain_reg'=>7,'dont_length'=>strlen($domain['dont_host'])]);
             $r='查询失败 废弃';
         }
         
